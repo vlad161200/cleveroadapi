@@ -5,12 +5,13 @@ const mysqlTool = require('../tools/mysql');
 const jwt = require('../tools/jwt');
 
 
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
     const user = req.body;
     const connection = mysqlTool.connection();
-      connection.query(`INSERT INTO users VALUES(
+    await connection.query(`INSERT INTO users VALUES(
     default, "${user.phone}", "${user.name}", "${user.email}", "${user.password}");`, (error, result) => {
         if (error) {
+            connection.end();
             res.status(422).json({
                 field: 'current_password',
                 message: 'Wrong current password'
@@ -23,7 +24,6 @@ router.post('/', (req, res) => {
             });
         }
     });
-
 });
 
 module.exports = router;
