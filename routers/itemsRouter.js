@@ -167,4 +167,65 @@ router.delete('/:id', async (req, res) => {
         return res.status(401).json({});
     }
 });
+
+router.post('/', async (req, res) => {
+        if(req.body.title === undefined || req.body.price === undefined){
+            if(req.body.title === undefined){
+                return res.status(422).json({
+                    field: "title",
+                    message: "Title is required"
+                });
+            }else{
+                return res.status(422).json({
+                    field: "price",
+                    message: "Price is required"
+                });
+            }
+        }
+        if(req.body.title.length < 3){
+            return res.status(422).json({
+                field: "title",
+                message: "Title is less than 3 symbols"
+            });
+        }
+        try {
+        const decodedToken = jwt.decodeToken(req.headers.authorization);
+        const connection = mysqlConfig.connection();
+        const timestamp = Math.floor(Date.now() / 1000);
+        await connection.query(`INSERT INTO items VALUES(
+               default, "${timestamp}", "${req.body.title}", ${req.body.price}, "${req.body.image}", ${decodedToken.id});`, async (error, result) => {
+            if (error) {
+                console.error(error);
+            } else {
+                await connection.query(`SELECT items.id, items.created_at, items.title,
+                                         items.price, items.image, items.user_id, users.phone,
+                                         users.name, users.email FROM items JOIN users ON items.user_id=users.id 
+                                         WHERE items.title="${req.body.title}" AND items.user_id=${decodedToken.id};`, (error, result) => {
+                    if (error) {
+                        console.error(error)
+                    } else {
+                        let returnResult = {
+                            id: result[0].id,
+                            created_at: result[0].created_at,
+                            title: result[0].title,
+                            price: result[0].price,
+                            image: result[0].image,
+                            user_id: result[0].user_id,
+                            user: {
+                                id: result[0].user_id,
+                                phone: result[0].phone,
+                                name: result[0].name,
+                                email: result[0].email
+                            }
+                        };
+                        return res.status(200).json(returnResult);
+                    }
+                });
+            }
+        });
+
+    } catch (e) {
+        return res.status(401).json({});
+    }
+});
 module.exports = router;
