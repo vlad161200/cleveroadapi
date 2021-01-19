@@ -20,7 +20,7 @@ router.post('/', async (req, res) => {
                 connection.end();
                 if (user.password === result[0].password) {
                     const token = jwt.generateToken(result[0], 3600);
-                    res.status(200).json({
+                    return res.status(200).json({
                         token: token
                     });
                 } else {
