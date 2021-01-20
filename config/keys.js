@@ -3,5 +3,6 @@ module.exports = {
   host: 'localhost',
   database: 'api',
   user: 'root',
-  password: '123456'
+  password: '123456',
+  urlSite: 'http://example.com/images/'
 };
