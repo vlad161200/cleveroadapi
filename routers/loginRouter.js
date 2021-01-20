@@ -1,7 +1,10 @@
 const {Router} = require('express');
 const router = Router();
+const bcrypt = require('bcrypt');
 const mysqlConfig = require('../tools/mysql');
 const jwt = require('../tools/jwt');
+const keys = require('../config/keys')
+
 
 router.post('/', async (req, res) => {
     const user = req.body;
@@ -13,12 +16,12 @@ router.post('/', async (req, res) => {
             if (!result.length) {
                 connection.end();
                 return res.status(422).json({
-                    field: 'password',
+                    field: 'email',
                     message: 'Wrong email or password'
                 });
             } else {
                 connection.end();
-                if (user.password === result[0].password) {
+                if (bcrypt.compareSync("qwerty", result[0].password)) {
                     const token = jwt.generateToken(result[0], 3600);
                     return res.status(200).json({
                         token: token

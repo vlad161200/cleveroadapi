@@ -60,7 +60,6 @@ router.get('/:id', async (req, res) => {
             if (error) {
 
             } else {
-                console.log(result);
                 if (result.length) {
                     let returnResult = {
                         id: result[0].id,
@@ -314,7 +313,6 @@ router.post('/:id/images', async (req, res) => {
                             });
                         }
                     });
-
                 }
             }
         });

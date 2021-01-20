@@ -1,6 +1,8 @@
 const {Router} = require('express');
 const router = Router();
+const bcrypt = require('bcrypt');
 
+const keys = require('../config/keys')
 const mysqlTool = require('../tools/mysql');
 const jwt = require('../tools/jwt');
 
@@ -9,7 +11,7 @@ router.post('/', async (req, res) => {
     const user = req.body;
     const connection = mysqlTool.connection();
     await connection.query(`INSERT INTO users VALUES(
-    default, "${user.phone}", "${user.name}", "${user.email}", "${user.password}");`, async (error, result) => {
+    default, "${user.phone}", "${user.name}", "${user.email}", "${bcrypt.hashSync(user.password, keys.salt)}");`, async (error, result) => {
         if (error) {
             connection.end();
             return res.status(422).json({
